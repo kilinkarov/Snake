@@ -225,9 +225,8 @@ surface = pygame.display.set_mode([RES, RES])
 surface_table = pygame.display.set_mode([RES, RES])
 clock = pygame.time.Clock()
 
-font_score = pygame.font.SysFont('Arial', 26, bold=True)
-font_end = pygame.font.SysFont('Arial', 66, bold=True)
-font_table = pygame.font.SysFont('Arial', 40, bold=True)
+font_score = pygame.font.SysFont('New Times Roman', 45, bold=True)
+font_table = pygame.font.SysFont('New Times Roman', 70, bold=True)
 
 img = pygame.image.load('images.jpeg').convert()
 img = pygame.transform.scale(img, (RES, RES))
@@ -279,8 +278,8 @@ def table_records():
     surface_table.blit(img, (0, 0))
     for i in range(min(count_game, 5)):
         record = str(table_record[i][0]) + ':' + str(table_record[i][1])
-        render_table = font_table.render(f' {record}', True, pygame.Color('orange'))
-        surface_table.blit(render_table, (300, 100 + 100 * i))
+        render_table = font_table.render(f' {record}', True, pygame.Color('black'))
+        surface_table.blit(render_table, (50, 100 + 100 * i))
     sleep(5)
 
 
@@ -298,7 +297,7 @@ def start_the_game():
 
     while True:
         surface.blit(img, (0, 0))
-        render_score = font_score.render(f'SCORE: {score}', True, pygame.Color('orange'))
+        render_score = font_score.render(f'SCORE: {score}', True, pygame.Color('white'))
         surface.blit(render_score, (5, 5))
         apple.draw_apple()
         snake.draw_rock()
