@@ -65,7 +65,7 @@ class SNAKE:
 
     def draw_snake(self, size):
         global surface
-        [pygame.draw.rect(surface, pygame.Color('white'), (i, j, size, size)) for i, j in self.snake]
+        [pygame.draw.rect(surface, pygame.Color('pink'), (i, j, size, size)) for i, j in self.snake]
 
     def close_game(self):
         for event in pygame.event.get():
