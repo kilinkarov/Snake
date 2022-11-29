@@ -11,6 +11,7 @@ pygame.init()
 clock = pygame.time.Clock()
 
 
+# класс для змеи (функции опишу внутри)
 class SNAKE:
     count_split = 10
     dx_now = 0
@@ -29,6 +30,7 @@ class SNAKE:
         self.snake = [[x, y]]
         self.snake_now = deepcopy(self.snake)
 
+    # рисование камня на surface
     def draw_rock(self):
         for x, y in self.rock:
             globals.surface.blit(self.image_rock, (x, y))
@@ -37,6 +39,7 @@ class SNAKE:
         for x, y in self.water:
             globals.surface.blit(self.image_water, (x, y))
 
+    # помним положение следующего кввадратика змеи на прошлом блоке и в эту сторону движется змея
     def move_snake(self, size, dx, dy):
         if globals.count == 0:
             self.dx_now = deepcopy(dx)
@@ -48,6 +51,7 @@ class SNAKE:
         self.snake[-1][0] += self.dx_now * (globals.SIZE // self.count_split)
         self.snake[-1][1] += self.dy_now * (globals.SIZE // self.count_split)
 
+    # добавляем к змее хвост, если она находится на блоке и съела яблоко
     def scaling_snake(self, size):
         if globals.flag:
             if globals.count == 0:
@@ -55,14 +59,17 @@ class SNAKE:
                 self.snake.append([self.snake[-1][0] - self.dx_now * size, self.snake[-1][1] - self.dy_now * size])
                 self.snake.reverse()
 
+    # рисуем змею на surface
     def draw_snake(self, size):
         [pygame.draw.rect(globals.surface, pygame.Color('pink'), (i, j, size, size)) for i, j in self.snake]
 
+    # закрываем игру
     def close_game(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 exit()
 
+    # проверка на закрытие игры
     def check_game_over(self, size, res):
         for i in range(len(self.snake) - 1):
             if (abs(self.snake[-1][0] - self.snake[i][0]) < size // 2
@@ -82,6 +89,8 @@ class SNAKE:
             return 1
         return 0
 
+    # если какая-то часть змеи на песке, то она замедляется, если на воде - ускоряется
+    # (приоритет - песок)
     def check_spand_or_water(self, size):
         count_water_spand = 0
         for x_s, y_s in self.snake:
@@ -98,6 +107,7 @@ class SNAKE:
             globals.fps = globals.fps_old
 
 
+# класс яблоко (также используется для снежинки) (функции описаны ниже)
 class APPLE:
     def __init__(self, x, y, image, rock, sand, water, x_a, y_a):
         self.x = x
@@ -109,25 +119,31 @@ class APPLE:
         self.x_a = x_a
         self.y_a = y_a
 
+    # так как используется и снежика, и яблоко, а друг в друге они спавнится не должны, они хранят координаты друг друга
+    # замена координаты яблока (у снежинки) и координаты снежинки (у яблока)
     def chanche(self, x, y):
         self.x_a = x
         self.y_a = y
 
+    # замена собственной координаты
     def chanche_x(self, x, y):
         self.x = x
         self.y = y
 
+    # при съедании снежинки ёё координаты уходят за границы surface (удаление снежинки)
     def crash(self, flagg):
         if flagg:
             self.x = globals.snowflake_xx
             self.y = globals.snowflake_xx
 
+    # побочная функция eating_apple (проверяет есть ли объект в массиве (хоть какой-то своей частью))
     def check(self, array, size):
         for x_s, y_s in array:
             if (self.x - x_s) ** 2 + (self.y - y_s) ** 2 <= size ** 2:
                 return 1
         return 0
 
+    # после поедания яблоко или перед появлением снежинки надо проверить - не появится ли объект внутри любого другого
     def eating_apple(self, flagg, snake, size):
         if flagg:
             self.x = randrange(globals.SIZE, globals.RES - globals.SIZE, globals.SIZE)
@@ -145,15 +161,18 @@ class APPLE:
                 self.x = randrange(globals.SIZE, globals.RES - globals.SIZE, globals.SIZE)
                 self.y = randrange(globals.SIZE, globals.RES - globals.SIZE, globals.SIZE)
 
+    # рисование яблоко в surface
     def draw_apple(self):
         globals.surface.blit(self.image, (self.x, self.y))
 
 
+# реализация работы кнопок
 class BUTTON:
     buttons = {'W': 1, 'S': 1, 'A': 1, 'D': 1, }
     dx = 0
     dy = 0
 
+    # реализация работы кнопок
     def orientation(self, dx_now, dy_now):
         if self.dx != dx_now or self.dy != dy_now:
             return
@@ -176,6 +195,7 @@ class BUTTON:
                 self.buttons = {'W': 1, 'S': 1, 'A': 0, 'D': 1, }
 
 
+# редактирование уровня сложности
 def set_difficulty(value, difficulty):
     globals.difficult = difficulty
     globals.fps = globals.ffps + globals.difficult * globals.count_splitt
@@ -185,16 +205,19 @@ def set_difficulty(value, difficulty):
     pass
 
 
+# получение имени, введенного в строку "имя" в меню
 def make_string_table(names_input):
     name = names_input.get_value()
     return name
 
 
+# добавление рекорда в таблицу рекордов (в массив)
 def table_records_append(names):
     globals.table_record.append([names, globals.score])
     globals.table_record.sort(key=lambda x: -x[1])
 
 
+# вывод и существование самой таблицы рекордов как таблицы
 def table_records():
     globals.surface_table.blit(globals.img, (0, 0))
     for i in range(min(globals.count_game, 5)):
@@ -204,6 +227,7 @@ def table_records():
     sleep(5)
 
 
+# стандартная зарисовка всего на каждом кадре
 def draw_all(apple, snake, snowflake, button):
     globals.surface.blit(globals.img, (0, 0))
     render_score = globals.font_score.render(f'SCORE: {globals.score}', True, pygame.Color('white'))
@@ -215,6 +239,7 @@ def draw_all(apple, snake, snowflake, button):
     button.orientation(snake.dx_now, snake.dy_now)
 
 
+# увелечение счёта и fps после съедения яблока
 def put_fps_apple(snake, apple):
     if (snake.snake[-1][0] + globals.SIZE - 1 >= apple.x >= snake.snake[-1][0] - globals.SIZE + 1) and (
             snake.snake[-1][1] + globals.SIZE - 1 >= apple.y >= snake.snake[-1][1] - globals.SIZE + 1):
@@ -227,6 +252,7 @@ def put_fps_apple(snake, apple):
             globals.flag = True
 
 
+# уменьшение счёта и замедление из-за снежинки
 def put_fps_snowflake(snake, snowflake, apple):
     if (snake.snake[-1][0] + globals.SIZE - 1 >= snowflake.x >= snake.snake[-1][0] - globals.SIZE + 1) and (
             snake.snake[-1][1] + globals.SIZE - 1 >= snowflake.y >= snake.snake[-1][1] - globals.SIZE + 1):
@@ -243,6 +269,7 @@ def put_fps_snowflake(snake, snowflake, apple):
             globals.time = 0
 
 
+# стандартные операции на каждой итерации
 def iteration(snake, apple, snowflake):
     if globals.count == 0:
         apple.eating_apple(globals.flag, snake.snake, globals.SIZE)
@@ -260,6 +287,7 @@ def iteration(snake, apple, snowflake):
         globals.time = 0
 
 
+# действия после смерти
 def game_over():
     sleep(1)
     globals.count_game += 1
@@ -274,6 +302,7 @@ def game_over():
     globals.time = -globals.max_time
 
 
+# основной цикл игры, собирающий в себе все функции
 def body_game(snake, apple, snowflake, button):
     draw_all(apple, snake, snowflake, button)
     if globals.time == -1:
@@ -286,6 +315,7 @@ def body_game(snake, apple, snowflake, button):
     iteration(snake, apple, snowflake)
 
 
+# самый основной цикл, cобирающий в себе цикл игры, действия после смерти и до жизни)
 def start_the_game():
     apple = APPLE(globals.x_apple, globals.y_apple, globals.apple_image, globals.lavel[globals.difficult],
                   globals.lavel_sand[globals.difficult],
@@ -308,6 +338,7 @@ def start_the_game():
     game_over()
 
 
+# реализация менюшки
 font = pygame_menu.font.FONT_DIGITAL
 mytheme = pygame_menu.Theme(
                 background_color=(0, 0, 0, 0),
