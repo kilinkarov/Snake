@@ -338,7 +338,7 @@ def start_the_game():
     game_over()
 
 
-# реализация менюшки
+
 font = pygame_menu.font.FONT_DIGITAL
 mytheme = pygame_menu.Theme(
                 background_color=(0, 0, 0, 0),
